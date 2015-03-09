@@ -1,9 +1,8 @@
 <?php
 'http://qc5qc.com/xqc/mlpxyy/stuyy_tj.php';
-'xm=%B3%C2%C1%FA&lkcid=&ssn=42060619870512005X&xcjxbh=HJG070&jd=%BD%D7%B6%CE%D2%BB&yyrq=2014-12-25&pxd=004&sjd=%CF%C2%CE%E71&token=da398f71817837dceb95892c0e75710f';
 $loginUrl	= 'http://qc5qc.com/xqc/mlpxyy/mCheck.php';
 $loginData	= array(
-	'userSsn'	=> '42060619870512005X',
+	'userSsn'	=> 'XXXXXXXXXXXXXXXXXXXXXXXX',
 	'province'	=> '01',
 	'city'	=> '01HJG070',
 	'token'	=> 'd9b0cd90d24cf621f93d5d9a6e3b2b1f',
@@ -38,8 +37,7 @@ $pxds	= array(
 //	'011'
 );
 $pxd	= '001';
-$ssn	= '42060619870512005X';//'420621198709055826';
-$xm		= '%B3%C2%C1%FA';
+$ssn	= 'XXXXXXXXXXXXXXXXXXXX';
 $sjds	= array(1, 2, 3);
 $token	= '5022f4baf33f1624c9505f90af0d9340';
 $maxDate	= '2015-03-25';
@@ -114,17 +112,3 @@ while (true) {
 }
 
 
-function sendMail($content)
-{
-
-require_once 'Hexin/MailProxy.php';
-$mailProxy	= new Hexin_MailProxy();
-
-$status	= $mailProxy->setProjectName('mngzqh')
-		->addTo('chenlong@myhexin.com')
-		->addTo('yebiao@myhexin.com')
-->setSubject('紧急: 有可以报名的了')
-->setBodyText($content)
-->setFrom('chenlong')
-->post();
-}
