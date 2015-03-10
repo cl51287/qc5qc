@@ -9,7 +9,7 @@ $loginData	= array(
 );
 
 
-$cookie	= "PHPSESSID=3tdcdc37umo8ba887rskdd1ks0; xqc2014_session=a%3A5%3A%7Bs%3A10%3A%22session_id%22%3Bs%3A32%3A%2226dacb02103f750444653facda4b4f24%22%3Bs%3A10%3A%22ip_address%22%3Bs%3A13%3A%22183.156.99.56%22%3Bs%3A10%3A%22user_agent%22%3Bs%3A109%3A%22Mozilla%2F5.0+%28Windows+NT+6.2%3B+WOW64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F40.0.2214.115+Safari%2F537.36%22%3Bs%3A13%3A%22last_activity%22%3Bi%3A1425908931%3Bs%3A9%3A%22user_data%22%3Bs%3A0%3A%22%22%3B%7D64390d382f8c5ab861d58a88e25ec19ca3f84dd9; CNZZDATA1382947=cnzz_eid%3D856081372-1425905784-%26ntime%3D1425905784";
+$cookie	= "PHPSESSID=iio2qakk8d4sc27jdmcceorbl7; xqc2014_session=a%3A5%3A%7Bs%3A10%3A%22session_id%22%3Bs%3A32%3A%2279e4cade2db4cbf50e8f60931ede3ba0%22%3Bs%3A10%3A%22ip_address%22%3Bs%3A13%3A%22124.160.92.82%22%3Bs%3A10%3A%22user_agent%22%3Bs%3A109%3A%22Mozilla%2F5.0+%28Windows+NT+6.2%3B+WOW64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F40.0.2214.115+Safari%2F537.36%22%3Bs%3A13%3A%22last_activity%22%3Bi%3A1425955021%3Bs%3A9%3A%22user_data%22%3Bs%3A0%3A%22%22%3B%7Dc44c8842d5fdb1365d49d1950e9bdf418b169a04; CNZZDATA1382947=cnzz_eid%3D683578151-1423305339-http%253A%252F%252Fxqc.qc5qc.com%252F%26ntime%3D1425951357";
 
 $saveUrl	= "http://xqc.qc5qc.com/reservation/training_save";
 $saveCh	= curl_init($saveUrl);
@@ -66,15 +66,12 @@ while (true) {
 			if (strpos($content, '选择培训时间段：') !== false) {
 				if ($rq <= $maxDate) {
 					$lines	= explode("\n", $content);
-					$sjd	= $sjds[0];
+					$sjd	= null;
 					foreach ($lines as $line) {
 						if (strpos($line, '<input name="sjd" type="radio"') !== false && strpos($line, 'disabled') === false) {
-							if (strpos($line, 'sjd1') !== false) {
-								$sjd	= $sjds[0];
-							} else if (strpos($line, 'sjd2') !== false) {
-								$sjd	= $sjds[1];
-							} else {
-								$sjd	= $sjds[2];
+							$value	= preg_match('/value="(.*?)"/', $line, $m);
+							if (isset($m[1])) {
+								$sjd	= $m[1];	
 							}
 						}
 
@@ -83,6 +80,11 @@ while (true) {
 							$token	= $m[1];
 						}
 						 */
+					}
+
+					echo $content . "\n";
+					if ($sjd === null) {
+						continue;
 					}
 					/*
 					echo '-----------------------------------------------------' . "\n";
