@@ -9,7 +9,7 @@ $loginData	= array(
 );
 
 
-$cookie	= "PHPSESSID=iio2qakk8d4sc27jdmcceorbl7; xqc2014_session=a%3A5%3A%7Bs%3A10%3A%22session_id%22%3Bs%3A32%3A%2279e4cade2db4cbf50e8f60931ede3ba0%22%3Bs%3A10%3A%22ip_address%22%3Bs%3A13%3A%22124.160.92.82%22%3Bs%3A10%3A%22user_agent%22%3Bs%3A109%3A%22Mozilla%2F5.0+%28Windows+NT+6.2%3B+WOW64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F40.0.2214.115+Safari%2F537.36%22%3Bs%3A13%3A%22last_activity%22%3Bi%3A1425955021%3Bs%3A9%3A%22user_data%22%3Bs%3A0%3A%22%22%3B%7Dc44c8842d5fdb1365d49d1950e9bdf418b169a04; CNZZDATA1382947=cnzz_eid%3D683578151-1423305339-http%253A%252F%252Fxqc.qc5qc.com%252F%26ntime%3D1425951357";
+$cookie	= "PHPSESSID=iio2qakk8d4sc27jdmcceorbl7; xqc2014_session=a%3A5%3A%7Bs%3A10%3A%22session_id%22%3Bs%3A32%3A%221eddb9726a76ef69ab219bef53ce76f5%22%3Bs%3A10%3A%22ip_address%22%3Bs%3A13%3A%22124.160.92.82%22%3Bs%3A10%3A%22user_agent%22%3Bs%3A109%3A%22Mozilla%2F5.0+%28Windows+NT+6.2%3B+WOW64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F41.0.2272.101+Safari%2F537.36%22%3Bs%3A13%3A%22last_activity%22%3Bi%3A1427627163%3Bs%3A9%3A%22user_data%22%3Bs%3A0%3A%22%22%3B%7D9c4881334b647abdc8b4a392902a68e53f629f8a; CNZZDATA1382947=cnzz_eid%3D683578151-1423305339-http%253A%252F%252Fxqc.qc5qc.com%252F%26ntime%3D1427622187";
 
 $saveUrl	= "http://xqc.qc5qc.com/reservation/training_save";
 $saveCh	= curl_init($saveUrl);
@@ -36,11 +36,12 @@ $pxds	= array(
 //	'008', 
 //	'011'
 );
+$today	= date('Y-m-d');
 $pxd	= '001';
 $ssn	= 'XXXXXXXXXXXXXXXXXXXX';
-$sjds	= array(1, 2, 3);
 $token	= '5022f4baf33f1624c9505f90af0d9340';
-$maxDate	= '2015-03-25';
+$maxDate	= '2015-04-25';
+$wantDates	= array('2015-04-04', '2015-04-05', '2015-04-06', '2015-04-18', '2015-04-19');
 $start		= microtime(true);
 while (true) {
 	foreach ($pxds as $pxd) {
@@ -51,7 +52,7 @@ while (true) {
 			//	sleep(1);
 			}
 			$start	= microtime(true);
-			if ($rq > $maxDate || ($rq >= '2015-02-18' && $rq <= '2015-02-24')) {
+			if (!checkIsDateOK($rq)) {
 				continue;
 			}
 			echo "curl start: " . date('H:i:s') . "\n";
@@ -64,7 +65,23 @@ while (true) {
 
 			$content	= curl_exec($apptimeCh);
 			if (strpos($content, '选择培训时间段：') !== false) {
-				if ($rq <= $maxDate) {
+				preg_match_all('/<ul\s+class="shake_list">((.*\s+)+?)<\/ul>/', $content, $bmxxMatches);
+				$lisStr	= $bmxxMatches[1][0];	
+				$liArr	= explode("\n", $lisStr);
+				$curYuyueRq	= '';
+				foreach ($liArr as $li) {
+					if (strpos($li, '预约日期') !== false) {
+						preg_match('/<b>(.*)<\/b>/', $li, $curYuyueRqMatches);
+						$curYuyueRq	= $curYuyueRqMatches[1];
+						break;
+					}
+				}
+				echo '预约日期：' . $curYuyueRq . "\n";
+				if (!checkIsDateOK($rq)) {
+					continue;
+				}
+
+				if ($rq <= $maxDate && $rq > $today) {
 					$lines	= explode("\n", $content);
 					$sjd	= null;
 					foreach ($lines as $line) {
@@ -97,6 +114,7 @@ while (true) {
 					curl_setopt($ch2, CURLOPT_COOKIE, $cookie);
 					 */
 					
+
 					curl_setopt($resultCh, CURLOPT_POSTFIELDS, "sjd={$sjd}");
 					$content	= curl_exec($resultCh);
 					echo $content . "\n";
@@ -113,4 +131,21 @@ while (true) {
 	}
 }
 
-
+function checkIsDateOK($date)
+{
+	global $maxDate, $wantDates, $today;
+	if (strlen($date) != 10) {
+		throw new Exception('error date ' . $date);
+	}
+	if ($date <= $maxDate && $date > $today) {
+		if ($wantDates) {
+			if (in_array($date, $wantDates)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
